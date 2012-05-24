@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="POS" default="default" basedir=".">
+    <description>Builds, tests, and runs the project POS.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    <property name="gettexttasks.jar" value="libs/gettext-ant-tasks-0.9.7.jar"/>
+    
+    <target name="init.gettext" description="Loads the Ant gettext tasks">
+        <taskdef name="gettext-extract" classname="org.xnap.commons.ant.gettext.GettextExtractKeysTask" classpath="${gettexttasks.jar}"/>
+        <taskdef name="gettext-merge" classname="org.xnap.commons.ant.gettext.GettextMergeKeysTask" classpath="${gettexttasks.jar}"/>
+        <taskdef name="gettext-generate-default" classname="org.xnap.commons.ant.gettext.GenerateDefaultBundleTask" classpath="${gettexttasks.jar}"/>
+        <taskdef name="gettext-dist" classname="org.xnap.commons.ant.gettext.GettextDistTask" classpath="${gettexttasks.jar}"/>
+    </target>
+    
+    <target name="extract-messages" description="Extracts message keys from the source code" depends="init.gettext">
+        <gettext-extract keysFile="messages.pot" poDirectory="po">
+            <fileset dir="src/" includes="**/*.java"/>
+        </gettext-extract>
+    </target>
+    
+    <target name="merge-messages" description="Merges newly extracted messages into existing po files" depends="init.gettext">
+        <gettext-merge keysFile="messages.pot" poDirectory="po"/>
+    </target>
+    
+    <target name="generate-default-bundle" description="Generates a default bundle" depends="init.gettext">
+        <gettext-generate-default targetBundle="vn.paracel.pos.i18n.Messages" outputDirectory="po" potfile="po/messages.pot"/>
+    </target>
+    
+    <target name="generate-bundles-jar" description="Generates Java ResourceBundles and jars them up" depends="extract-messages,merge-messages">
+        <gettext-dist targetBundle="vn.paracel.pos.i18n.Messages" poDirectory="po" outputDirectory="po" percentage="10"/>
+        <jar destfile="libs/messages.jar" basedir="po" includes="vn/**"/>
+    </target>
+</project>
